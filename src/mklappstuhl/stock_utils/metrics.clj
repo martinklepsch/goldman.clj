@@ -1,8 +1,9 @@
-(ns mklappstuhl.stock-utils.metrics)
+(ns mklappstuhl.stock-utils.metrics
+  (:require [mklappstuhl.stock-utils.data :as data]))
 
 (defn daily-returns [etf]
-  (let [adj-closes (map :adj-close (load-trading-data etf))
-        days       (map :date      (load-trading-data etf))]
+  (let [adj-closes (map :adj-close (data/load-trading-data etf))
+        days       (map :date      (data/load-trading-data etf))]
     (zipmap
       days
       (map dec (map / adj-closes (rest adj-closes))))))
