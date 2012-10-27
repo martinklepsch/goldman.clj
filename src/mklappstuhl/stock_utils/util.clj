@@ -5,4 +5,4 @@
 (def yfinance-date (time-format/formatter "yyyy-MM-dd"))
 
 (defn parse-date [datestring]
-  (time-core/parse yfinance-date datestring))
+  (time-format/parse yfinance-date datestring))
