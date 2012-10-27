@@ -1,4 +1,4 @@
-(ns mklappstuhl.stock-utils.analyze
+(ns mklappstuhl.stock-utils.data
   (:require [clojure.java.io :as io]
             [mklappstuhl.stock-utils.util :as util]
             [in.freegeek.yfinance :as yfinance]
