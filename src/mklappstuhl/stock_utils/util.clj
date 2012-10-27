@@ -1,8 +1,8 @@
 (ns mklappstuhl.stock-utils.util
-  (:require [clj-time.core :refer :all]
-            [clj-time.format :refer :all]))
+  (:require [clj-time.core :as time-core]
+            [clj-time.format :as time-format]))
 
-(def yfinance-date (formatter "yyyy-MM-dd"))
+(def yfinance-date (time-format/formatter "yyyy-MM-dd"))
 
 (defn parse-date [datestring]
-  (parse yfinance-date datestring))
+  (time-core/parse yfinance-date datestring))
