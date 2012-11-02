@@ -1,25 +1,23 @@
 (ns mklappstuhl.stock-utils.metrics
-  (:require [mklappstuhl.stock-utils.data :as data]))
+  (:require [mklappstuhl.stock-utils.data :as data]
+            [incanter.stats :as stats]))
 
-(defn daily-returns [etf]
-  (let [adj-closes (map :adj-close (data/load-trading-data etf))
-        days       (map :date      (data/load-trading-data etf))]
+(defn daily-returns [trade]
+  "takes symbol like AAPL and returns hash map of relative
+  daily returns like {date return}"
+  (let [adj-closes (map :adj-close (data/load-trading-data trade))
+        days       (map :date      (data/load-trading-data trade))]
     (zipmap
       days
       (map dec (map / adj-closes (rest adj-closes))))))
 
-(defn mean-daily-returns [etf]
-  (/ (reduce + (vals (daily-returns etf)))
-     (count (daily-returns etf))))
+(defn mean-daily-returns [trade]
+  "takes symbol like AAPL and returns average of daily returns"
+  (/ (reduce + (vals (daily-returns (:etf trade))))
+     (count (daily-returns (:etf trade)))))
 
-(defn standard-deviation [samples]
-  (let [n (count samples)
-        mean (/ (reduce + samples) n)
-        intermediate (map #(Math/pow (- %1 mean) 2) samples)]
-    (Math/sqrt
-      (/ (reduce + intermediate) n))))
-
-(defn sharpe-ratio [etf]
+(defn sharpe-ratio [trade]
+  "takes symbol like AAPL and returns sharpe ratio"
   (let [k (Math/sqrt 250)]
-    (* k (/ (mean-daily-returns etf)
-            (standard-deviation (vals (daily-returns etf)))))))
+    (* k (/ (mean-daily-returns trade)
+            (stats/sd (vals (daily-returns trade)))))))
