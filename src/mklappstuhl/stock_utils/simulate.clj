@@ -7,7 +7,10 @@
 (defn fund [name & trades]
   {name trades})
 
-(defn testfund []
+(defn sampletrade []
+  (buy "AAPL" 100000 (time/date-time 2012 1 1)))
+
+(defn samplefund []
   (fund :compinvest1
         (buy "AAPL" 100000 (time/date-time 2011 1 1))
         (buy "IBM"  400000 (time/date-time 2011 1 1))
