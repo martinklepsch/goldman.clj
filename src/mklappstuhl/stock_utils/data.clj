@@ -28,9 +28,12 @@
 (defn parse-file [trade]
   "read CSV file and parse each line with parse-line"
   (let [records (csvlib/read-csv (str "data/" (:etf trade) ".csv") :headers? true)]
-    (filter (fn [day]
-              (time/after? (:date day) (:date trade)))
-      (map parse-line records))))
+    (sort-by :date
+      (filter (fn [day] (time/after? (:date day) (:date trade)))
+        (map parse-line records)))))
 
 (defn load-trading-data [trade]
+  ; Rewrite this function so that it downloads data
+  ; in case of insufficient existing data
+  ; - Date ranges need to be compared (last and second line in csv)
   (parse-file trade))
