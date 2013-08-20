@@ -3,7 +3,8 @@
             [mklappstuhl.stock-utils.metrics :as metrics]
             [mklappstuhl.stock-utils.simulate :as simulate]
             [mklappstuhl.stock-utils.util :as util]
-            [mklappstuhl.stock-utils.setup :as setup]))
+            [mklappstuhl.stock-utils.populate :as populate]
+            [mklappstuhl.stock-utils.db :as db]))
 
 (defn -main []
-  (setup/create-tables!))
+  (db/create-tables!))

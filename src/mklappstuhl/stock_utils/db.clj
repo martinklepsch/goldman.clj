@@ -1,7 +1,11 @@
-(ns mklappstuhl.stock-utils.setup
-  (:require [mklappstuhl.stock_utils.persistence :as persistence]
+(ns mklappstuhl.stock-utils.db
+  (:require [korma.db :as kdb]
             [clojure.java.jdbc :as jdbc]))
 
+
+(def pg (kdb/postgres {:db "goldman"
+                      :user "goldman"
+                      :password ""}))
 
 (defn create-stock_symbols
   "creates the table stocks in the database"
@@ -35,8 +39,7 @@
 (defn create-tables!
   "creates the necessary tables (stock,stock_symbol)"
   []
- (jdbc/with-connection
-   persistence/pg
+ (jdbc/with-connection pg
    (jdbc/transaction
      (create-stock_symbols)
      (create-stocks))))
