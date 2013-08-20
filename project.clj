@@ -7,5 +7,6 @@
                  [org.clojars.bmabey/csvlib "0.3.4"]
                  [org.clojars.jwhitlark/clj-time "0.4.5-SNAPSHOT"]
                  [org.clojure/java.jdbc "0.3.0-alpha4"]
-                 [postgresql/postgresql "9.1-901.jdbc4"]]
+                 [postgresql/postgresql "9.1-901.jdbc4"]
+                 [org.clojure/data.csv "0.1.2"]]
   :main mklappstuhl.stock-utils.core)

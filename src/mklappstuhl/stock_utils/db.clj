@@ -1,5 +1,6 @@
 (ns mklappstuhl.stock-utils.db
   (:require [korma.db :as kdb]
+            [korma.core :as k]
             [clojure.java.jdbc :as jdbc]))
 
 
@@ -13,9 +14,10 @@
   (jdbc/create-table
    :stock_symbol
    [:id :serial "PRIMARY KEY"]
-   [:name "varchar(7)"]  ;; longest stock-name is 5 characters long
+   [:name "varchar(15)"]  ;; longest stock-name is 5 characters long
    [:full_name "varchar(255)"]
-   [:launch_date :timestamp "NOT NULL" "DEFAULT CURRENT_TIMESTAMP"]
+   [:sector "varchar(255)"]
+   [:industry "varchar(255)"]
    ))
 
 (defn create-stocks

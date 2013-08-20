@@ -7,4 +7,5 @@
             [mklappstuhl.stock-utils.db :as db]))
 
 (defn -main []
-  (db/create-tables!))
+  (do (db/create-tables!)
+      (populate/populate-stock_symbols "./resources/nasdaq.csv")))
