@@ -8,4 +8,6 @@
 
 (defn -main []
   (do (db/create-tables!)
-      (populate/populate-stock_symbols "./resources/nasdaq.csv")))
+      (populate/populate-stock_symbols "./resources/nasdaq.csv")
+      (populate/populate-stock_symbols "./resources/nyse.csv")
+      (populate/populate-stock_symbols "./resources/amex.csv")))
