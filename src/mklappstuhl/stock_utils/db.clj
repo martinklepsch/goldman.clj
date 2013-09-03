@@ -12,7 +12,7 @@
   "creates the table stocks in the database"
   []
   (jdbc/create-table
-   :stock_symbol
+   :stock_symbols
    [:id :serial "PRIMARY KEY"]
    [:name "varchar(15)"]  ;; longest stock-name is 5 characters long
    [:full_name "varchar(255)"]
@@ -20,12 +20,16 @@
    [:industry "varchar(255)"]
    ))
 
+; should be called trading-days?
 (defn create-stocks
   "creates the table stocks in the database"
   []
   (jdbc/create-table
    :stock
    [:id :serial "PRIMARY KEY"]
+   ; maybe that field should be just called date?
+   ; also it should just be a date and no hours, minutes, whatsoever
+   ; and it should be unique
    [:trading_date :timestamp "NOT NULL" "DEFAULT CURRENT_TIMESTAMP"] ;d2
    ;; TODO: what do we want in the db? ask/bid/volume...
    [:stock_symbol_id :serial "references stock_symbol (id)"] ;; foreign key ;s
@@ -37,6 +41,9 @@
    [:ask :integer "NOT NULL"] ;a
    [:bid :integer "NOT NULL"] ;b
    ))
+
+(defn persist-day [sym day-data]
+  (jdbc/insert! pg :stock day-data))
 
 (defn create-tables!
   "creates the necessary tables (stock,stock_symbol)"
