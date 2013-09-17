@@ -30,9 +30,9 @@
       [:industry "varchar(255)"]))
 
 
-(defn create-trades []
+(defn create-days []
     (sql/create-table
-      :trades
+      :days
       [:id :serial "PRIMARY KEY"]
       [:trading_date :date "UNIQUE NOT NULL" "DEFAULT CURRENT_DATE"] ;d2
       ;; TODO: what do we want in the db? ask/bid/volume...
@@ -79,4 +79,4 @@
 (defn migrate-all []
   "run all migrations"
   (migrate #'create-symbols
-           #'create-trades))
+           #'create-days))
