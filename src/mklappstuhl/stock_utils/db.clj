@@ -21,23 +21,20 @@
         (catch Exception e (.getNextException e))))))
 
 (defn create-symbols []
-  (try
     (sql/create-table
       :symbols
       [:id :serial "PRIMARY KEY"]
       [:name "varchar(15)" "UNIQUE"]  ;; longest stock-name is 5 characters long
       [:full_name "varchar(255)"]
       [:sector "varchar(255)"]
-      [:industry "varchar(255)"])
-    (catch Exception e (.getNextException e))))
+      [:industry "varchar(255)"]))
 
 
-(defn create-market-days []
-  (try
+(defn create-trades []
     (sql/create-table
-      :market-days
+      :trades
       [:id :serial "PRIMARY KEY"]
-      [:date :date "UNIQUE NOT NULL" "DEFAULT CURRENT_DATE"] ;d2
+      [:trading_date :date "UNIQUE NOT NULL" "DEFAULT CURRENT_DATE"] ;d2
       ;; TODO: what do we want in the db? ask/bid/volume...
       [:stock_symbol_id :serial "references symbols (id)"] ;; foreign key ;s
       [:high :integer "NOT NULL"] ;h
@@ -46,8 +43,7 @@
       [:close :integer "NOT NULL"] ; previous day - p
       [:volume :integer "NOT NULL"] ;v
       [:ask :integer "NOT NULL"] ;a
-      [:bid :integer "NOT NULL"]) ;b
-    (catch Exception e (.getNextException e))))
+      [:bid :integer "NOT NULL"])) ;b
 
 ; this structure can be used to alter the current db schema
 ; (defn add-whatever []
@@ -76,11 +72,11 @@
     (sql/transaction
       (let [has-run? (sql/with-query-results run ["SELECT name FROM migrations"]
                        (set (map :name run)))]
-        (doseq [m migrations 
+        (doseq [m migrations
                 :when (not (has-run? (str (:name (meta m)))))]
           (run-and-record m))))))
 
 (defn migrate-all []
   "run all migrations"
   (migrate #'create-symbols
-           #'create-market-days))
+           #'create-trades))

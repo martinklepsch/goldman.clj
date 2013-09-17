@@ -26,8 +26,8 @@
   (let [data (get (yfinance/fetch-historical-data "2011-12-01" "2011-12-15" [sym]) sym)]
     (map db/persist-day sym (parse-response data))))
 
-; (defn load-trading-data [trade]
-;   ; Rewrite this function so that it downloads data
-;   ; in case of insufficient existing data
-;   ; - Date ranges need to be compared (last and second line in csv)
-;   (parse-file trade))
+(defn load-trading-data [trade]
+  ; Rewrite this function so that it downloads data
+  ; in case of insufficient existing data
+  ; - Date ranges need to be compared (last and second line in csv)
+  ())
