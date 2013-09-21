@@ -28,8 +28,9 @@
     (k/limit 1)))
 
 (defn persist-day [stock-id day-data]
-  (pp/print-table day-data))
-  ; (sql/insert! db :days day-data))
+  (let [data (merge {:stock_id stock-id} day-data)]
+    (k/insert days
+      (k/values data))))
 
 (defn drop-schema []
   (sql/with-connection db
