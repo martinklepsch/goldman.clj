@@ -18,7 +18,6 @@
 
 (defn stock-sample  []
   (k/select stocks
-    (k/fields :id :name)
     (k/limit 1)))
 
 (defn persist-day [stock-id day-data]

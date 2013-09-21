@@ -7,3 +7,6 @@
 
 (defn parse-date [datestring]
   (coerce/to-sql-date (format/parse yfinance-date datestring)))
+
+(defn unparse-date [date]
+  (format/unparse yfinance-date date))
