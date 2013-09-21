@@ -2,18 +2,12 @@
   (:require [korma.db :as kdb]
             [korma.core :as k]
             [clojure.pprint :as pp]
-            [clojure.java.jdbc :as sql]
-            
-            [mklappstuhl.stock-utils.data :as d]))
+            [clojure.java.jdbc :as sql]))
 
-
-; (def db (kdb/postgres {:db "goldman"
-;                        :user "goldman"
-;                        :password ""}))
 
 (kdb/defdb db (kdb/postgres {:db "goldman"
-                       :user "goldman"
-                       :password ""}))
+                             :user "goldman"
+                             :password ""}))
 
 (k/defentity stocks)
 (k/defentity days
