@@ -56,14 +56,14 @@
       [:trading_date :date "UNIQUE NOT NULL" "DEFAULT CURRENT_DATE"] ;d2
       ;; TODO: what do we want in the db? ask/bid/volume...
       [:stock_id :serial "references stocks (id)"] ;; foreign key ;s
-      [:open :integer "NOT NULL"] ;o
-      [:high :integer "NOT NULL"] ;h
-      [:low :integer "NOT NULL"] ;g
-      [:close :integer "NOT NULL"] ; previous day - p
+      [:open "NUMERIC(16, 4)" "NOT NULL"] ;o
+      [:high "NUMERIC(16, 4)" "NOT NULL"] ;h
+      [:low "NUMERIC(16, 4)" "NOT NULL"] ;g
+      [:close "NUMERIC(16, 4)" "NOT NULL"] ; previous day - p
       [:volume :integer "NOT NULL"] ;v
-      [:adjusted_close :integer "NOT NULL"] ;  ????
-      [:ask :integer] ;a
-      [:bid :integer])) ;b
+      [:adjusted_close "NUMERIC(16, 4)" "NOT NULL"] ;  ????
+      [:ask "NUMERIC(16, 4)"] ;a
+      [:bid "NUMERIC(16, 4)"])) ;b
 
 ; this structure can be used to alter the current db schema
 ; (defn add-whatever []
