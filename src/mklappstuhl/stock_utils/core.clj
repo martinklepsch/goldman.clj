@@ -8,6 +8,6 @@
 
 (defn -main []
   (do (db/migrate-all)
-      (populate/populate-symbols "./resources/nasdaq.csv")
-      (populate/populate-symbols "./resources/nyse.csv")
-      (populate/populate-symbols "./resources/amex.csv")))
+      (populate/populate-stocks "./resources/nasdaq.csv")
+      (populate/populate-stocks "./resources/nyse.csv")
+      (populate/populate-stocks "./resources/amex.csv")))
