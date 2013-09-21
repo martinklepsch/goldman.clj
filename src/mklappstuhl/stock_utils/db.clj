@@ -1,28 +1,46 @@
 (ns mklappstuhl.stock-utils.db
   (:require [korma.db :as kdb]
             [korma.core :as k]
-            [clojure.java.jdbc :as sql]))
+            [clojure.pprint :as pp]
+            [clojure.java.jdbc :as sql]
+            
+            [mklappstuhl.stock-utils.data :as d]))
 
 
-(def db (kdb/postgres {:db "goldman"
+; (def db (kdb/postgres {:db "goldman"
+;                        :user "goldman"
+;                        :password ""}))
+
+(kdb/defdb db (kdb/postgres {:db "goldman"
                        :user "goldman"
                        :password ""}))
 
-(defn persist-day [sym day-data]
-  (sql/insert! db :stock day-data))
+(k/defentity stocks)
+(k/defentity days
+  (k/has-one stocks))
+
+(k/defentity stocks
+  (k/has-many days))
+
+(defn stock-sample  []
+  (k/select stocks
+    (k/fields :id :name)
+    (k/limit 1)))
+
+(defn persist-day [stock-id day-data]
+  (pp/print-table day-data))
+  ; (sql/insert! db :days day-data))
 
 (defn drop-schema []
   (sql/with-connection db
     (sql/transaction
-      (try
-        ((sql/drop-table :migrations)
-         (sql/drop-table :symbols)
-         (sql/drop-table :market-days))
-        (catch Exception e (.getNextException e))))))
+       (try (sql/drop-table :migrations))
+       (try (sql/drop-table :stocks))
+       (try (sql/drop-table :days)))))
 
-(defn create-symbols []
+(defn create-stocks []
     (sql/create-table
-      :symbols
+      :stocks
       [:id :serial "PRIMARY KEY"]
       [:name "varchar(15)" "UNIQUE"]  ;; longest stock-name is 5 characters long
       [:full_name "varchar(255)"]
@@ -36,14 +54,15 @@
       [:id :serial "PRIMARY KEY"]
       [:trading_date :date "UNIQUE NOT NULL" "DEFAULT CURRENT_DATE"] ;d2
       ;; TODO: what do we want in the db? ask/bid/volume...
-      [:stock_symbol_id :serial "references symbols (id)"] ;; foreign key ;s
+      [:stock_id :serial "references stocks (id)"] ;; foreign key ;s
+      [:open :integer "NOT NULL"] ;o
       [:high :integer "NOT NULL"] ;h
       [:low :integer "NOT NULL"] ;g
-      [:open :integer "NOT NULL"] ;o
       [:close :integer "NOT NULL"] ; previous day - p
       [:volume :integer "NOT NULL"] ;v
-      [:ask :integer "NOT NULL"] ;a
-      [:bid :integer "NOT NULL"])) ;b
+      [:adjusted_close :integer "NOT NULL"] ;  ????
+      [:ask :integer] ;a
+      [:bid :integer])) ;b
 
 ; this structure can be used to alter the current db schema
 ; (defn add-whatever []
@@ -78,5 +97,5 @@
 
 (defn migrate-all []
   "run all migrations"
-  (migrate #'create-symbols
+  (migrate #'create-stocks
            #'create-days))
