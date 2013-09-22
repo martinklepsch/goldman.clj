@@ -23,14 +23,14 @@
     (map parse-day (rest records))))
 
 (defn last-synced-day [stock]
-  (:trading_date
-   (first
-    (k/select db/days
-              (k/where {:stock_id 1})
-              (k/order :trading_date :desc)
-              (k/fields :trading_date)
-              (k/limit 1))))
-  (time/date-time 2000 01 01))
+  (or (:trading_date
+       (first
+        (k/select db/days
+                  (k/where {:stock_id 1})
+                  (k/order :trading_date :desc)
+                  (k/fields :trading_date)
+                  (k/limit 1))))
+      (time/date-time 2000 01 01)))
 
 (defn sync-trading-data [stock]
   "load Yahoo! Finance data for given stock and save it to database"
