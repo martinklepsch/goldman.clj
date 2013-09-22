@@ -25,7 +25,7 @@
   (or (:trading_date
        (first
         (k/select db/days
-                  (k/where {:stock_id 1})
+                  (k/where {:stock_name (name stock)})
                   (k/order :trading_date :desc)
                   (k/fields :trading_date)
                   (k/limit 1))))
@@ -33,11 +33,10 @@
 
 (defn sync-trading-data [stock]
   "load Yahoo! Finance data for given stock and save it to database"
-  (let [{:keys [id sym]} stock
-        today (util/unparse-date (time/now))
+  (let [today (util/unparse-date (time/now))
         last-sync (util/unparse-date (last-synced-day stock))
-        data (sym (yfinance/fetch-historical-data last-sync today [sym]))]
-    (map (partial db/persist-day id)
+        data (stock (yfinance/fetch-historical-data last-sync today [stock]))]
+    (map (partial db/persist-day stock)
          (map #(update-in % [:trading_date] util/parse-date)
               data))))
 

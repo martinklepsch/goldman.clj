@@ -30,8 +30,8 @@
   (k/select stocks
     (k/limit 1)))
 
-(defn persist-day [stock-id day-data]
-  (let [data (merge {:stock_id stock-id} day-data)]
+(defn persist-day [stock-name day-data]
+  (let [data (merge {:stock_name (name stock-name)} day-data)]
     (k/insert days
       (k/values data))))
 
@@ -45,8 +45,7 @@
 (defn create-stocks []
     (sql/create-table
       :stocks
-      [:id :serial "PRIMARY KEY"]
-      [:name "varchar(15)" "UNIQUE"]  ;; longest stock-name is 5 characters long
+      [:name "varchar(15)" "PRIMARY KEY"]  ;; longest stock-name is 5 characters long
       [:full_name "varchar(255)"]
       [:sector "varchar(255)"]
       [:industry "varchar(255)"]))
@@ -58,7 +57,7 @@
       [:id :serial "PRIMARY KEY"]
       [:trading_date :date "UNIQUE NOT NULL" "DEFAULT CURRENT_DATE"] ;d2
       ;; TODO: what do we want in the db? ask/bid/volume...
-      [:stock_id :serial "references stocks (id)"] ;; foreign key ;s
+      [:stock_name "varchar(15)" "REFERENCES STOCKS (name)"] ;; foreign key ;s
       [:open "NUMERIC(16, 4)" "NOT NULL"] ;o
       [:high "NUMERIC(16, 4)" "NOT NULL"] ;h
       [:low "NUMERIC(16, 4)" "NOT NULL"] ;g

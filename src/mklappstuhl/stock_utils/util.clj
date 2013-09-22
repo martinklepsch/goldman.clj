@@ -1,7 +1,8 @@
 (ns mklappstuhl.stock-utils.util
   (:require [clj-time.core :as t]
             [clj-time.coerce :as coerce]
-            [clj-time.format :as format]))
+            [clj-time.format :as format]
+            [clojure.data.csv :as csv]))
 
 (def yfinance-date (format/formatter "yyyy-MM-dd"))
 
