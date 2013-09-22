@@ -36,12 +36,16 @@
   (let [today (util/unparse-date (time/now))
         last-sync (util/unparse-date (last-synced-day stock))
         data (stock (yfinance/fetch-historical-data last-sync today [stock]))]
-    (map (partial db/persist-day stock)
-         (map #(update-in % [:trading_date] util/parse-date)
-              data))))
+    (db/persist-day stock
+                    (map #(update-in % [:trading_date] util/parse-date)
+                         data))))
 
 (defn load-trading-data [trade]
   ; Rewrite this function so that it downloads data
   ; in case of insufficient existing data
   ; - Date ranges need to be compared (last and second line in csv)
   ())
+
+(defn populate-days []
+  (let [stocks (k/select db/stocks)]
+    (map (comp sync-trading-data :name) stocks)))
