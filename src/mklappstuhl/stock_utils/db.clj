@@ -6,17 +6,25 @@
 
 
 (def pg (kdb/postgres {:db "goldman"
-                             :user "goldman"
-                             :password ""
-                             :host "localhost"
-                             :port "5432"}))
-
-(k/defentity stocks)
-(k/defentity days
-  (k/has-one stocks))
+                       :user "goldman"
+                       :password ""
+                       :host "localhost"
+                       :port "5432"}))
 
 (k/defentity stocks
-  (k/has-many days))
+  (k/database pg))
+
+(k/defentity days
+  (k/database pg)
+  (k/has-one stocks))
+
+(k/defentity
+ stocks
+ (k/database pg)
+ (k/has-many days)
+ (k/transform
+  (fn [m]
+    (update-in m [:name] keyword))))
 
 (defn stock-sample  []
   (k/select stocks
