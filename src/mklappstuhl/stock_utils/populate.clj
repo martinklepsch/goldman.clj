@@ -42,6 +42,11 @@
                            data))
       stock)))
 
+(def marijuana
+  [:CANV :CBIS :EDXC :ERBB :FSPM :GRNH :GWPL
+   :GWPRF :HEMP :HSCC :MDBX :MJNA :MWIP :NVLX
+   :PHOT :RFMK :RIGH :TRTC :XCHC])
+
 (defn load-trading-data [trade]
   ; Rewrite this function so that it downloads data
   ; in case of insufficient existing data
