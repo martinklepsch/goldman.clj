@@ -5,7 +5,7 @@
             [clojure.java.jdbc :as sql]))
 
 
-(kdb/defdb pg (kdb/postgres {:db "goldman"
+(def pg (kdb/postgres {:db "goldman"
                              :user "goldman"
                              :password ""
                              :host "localhost"
