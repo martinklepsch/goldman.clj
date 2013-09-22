@@ -36,9 +36,11 @@
   (let [today (util/unparse-date (time/now))
         last-sync (util/unparse-date (last-synced-day stock))
         data (stock (yfinance/fetch-historical-data last-sync today [stock]))]
-    (db/persist-day stock
-                    (map #(update-in % [:trading_date] util/parse-date)
-                         data))))
+    (if (not= data 404)
+      (db/persist-day stock
+                      (map #(update-in % [:trading_date] util/parse-date)
+                           data))
+      stock)))
 
 (defn load-trading-data [trade]
   ; Rewrite this function so that it downloads data
@@ -47,5 +49,6 @@
   ())
 
 (defn populate-days []
+  "populate the days table, returns a list of the symbols where yahoo returned 404"
   (let [stocks (k/select db/stocks)]
-    (map (comp sync-trading-data :name) stocks)))
+    (filter keyword? (map (comp sync-trading-data :name) stocks))))

@@ -7,4 +7,5 @@
 
 (defn -main []
   (do (db/migrate-all)
-      (populate/populate-stocks "./resources/nasdaq.csv")))
+      (populate/populate-stocks "./resources/nasdaq.csv")
+      (populate/populate-days)))
