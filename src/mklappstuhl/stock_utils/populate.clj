@@ -13,7 +13,7 @@
         parsed-csv (map (comp #(select-keys % header-stripped)
                               (partial zipmap header))
                         (csv/read-csv csv-file))]
-    (apply (partial jdbc/insert! db/db :stocks)
+    (apply (partial jdbc/insert! db/pg :stocks)
            (rest parsed-csv)))))
 
 

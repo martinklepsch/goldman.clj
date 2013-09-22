@@ -5,9 +5,11 @@
             [clojure.java.jdbc :as sql]))
 
 
-(kdb/defdb db (kdb/postgres {:db "goldman"
+(kdb/defdb pg (kdb/postgres {:db "goldman"
                              :user "goldman"
-                             :password ""}))
+                             :password ""
+                             :host "localhost"
+                             :port "5432"}))
 
 (k/defentity stocks)
 (k/defentity days
@@ -26,7 +28,7 @@
       (k/values data))))
 
 (defn drop-schema []
-  (sql/with-connection db
+  (sql/with-connection pg
     (sql/transaction
        (try (sql/drop-table :migrations))
        (try (sql/drop-table :stocks))
@@ -77,7 +79,7 @@
     (catch Exception e (.getNextException e))))
 
 (defn migrate [& migrations]
-  (sql/with-connection db
+  (sql/with-connection pg
     (try (sql/create-table "migrations"
                           [:name :varchar "NOT NULL"]
                           [:created_at :timestamp "NOT NULL"  "DEFAULT CURRENT_TIMESTAMP"])
