@@ -2,22 +2,19 @@
   (:require [mklappstuhl.stock-utils.db :as db]
             [mklappstuhl.stock-utils.util :as util]
             [clojure.java.io :as io]
-            [clojure.data.csv :as csv]
+            [clojure-csv.core :as csv]
             [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [korma.core :as k]
             [in.freegeek.yfinance :as yfinance]
-            [clj-time.core :as time]
-            [clojure.data.csv :as csv]))
+            [clj-time.core :as time]))
 
 ;; csv can be downloaded at http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NASDAQ&render=download
-(defn populate-stocks [csv-name]
+(defn populate-stocks [csv-name seperator header header-stripped]
  (with-open [csv-file (io/reader csv-name)]
-  (let [header [:name :full_name :lastSale :MarketCap :ADR_TSO :IPOyear :sector :industry :summary_quote]
-        header-stripped [:name :full_name :sector :industry]
-        parsed-csv (map (comp #(select-keys % header-stripped)
+  (let [parsed-csv (map (comp #(select-keys % header-stripped)
                               (partial zipmap header))
-                        (csv/read-csv csv-file))]
+                        (doall (csv/parse-csv csv-file :delimiter seperator)))]
     (apply (partial jdbc/insert! db/pg :stocks)
            (rest parsed-csv)))))
 
