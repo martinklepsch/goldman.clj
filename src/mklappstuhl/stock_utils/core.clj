@@ -9,9 +9,7 @@
   (GET ["/stock/:stock" :stock #".*"] [stock]
        (resource :available-media-types ["application/json"]
                  :handle-ok (fn [ctx]
-                              (do
-                                (println stock)
-                                (json/write-str (metrics/get-stock-data (keyword stock))))))))
+                              (json/write-str (metrics/get-stock-data (keyword stock)))))))
 
 (defn -main [& args]
   (run-jetty #'app {:port 3000}))
