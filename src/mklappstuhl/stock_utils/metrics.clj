@@ -1,5 +1,7 @@
 (ns mklappstuhl.stock-utils.metrics
   (:require [mklappstuhl.stock-utils.populate :as populate]
+            [mklappstuhl.stock-utils.persistence :as pers]
+            [korma.core :as k]
             [incanter.stats :as stats]))
 
 (defn daily-returns [trade]
@@ -27,3 +29,9 @@
   (let [k (Math/sqrt 250)]
     (* k (/ (mean-daily-returns trade)
             (stats/sd (vals (daily-returns trade)))))))
+
+(defn get-stock-data [stock]
+  (k/select pers/days
+            (k/where {:stock_name (name stock)})))
+
+; (get-stock-data :AABB)

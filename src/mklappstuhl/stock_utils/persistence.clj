@@ -13,8 +13,12 @@
 
 (k/defentity stocks)
 
-(k/defentity days
-  (k/has-one stocks))
+(k/defentity
+ days
+ (k/has-one stocks)
+ (k/transform
+  (fn [m]
+    (update-in m [:trading_date] str))))
 
 (k/defentity
  stocks
@@ -101,3 +105,5 @@
   (migrate db-conn
            #'create-stocks
            #'create-days))
+
+;;(migrate-all pg)

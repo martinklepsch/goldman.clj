@@ -1,18 +1,17 @@
 (ns mklappstuhl.stock-utils.core
-  (:require [mklappstuhl.stock-utils.metrics :as metrics]
-            [mklappstuhl.stock-utils.simulate :as simulate]
-            [mklappstuhl.stock-utils.util :as util]
-            [mklappstuhl.stock-utils.populate :as populate]
-            [mklappstuhl.stock-utils.persistence :as pers]))
+  (:require [liberator.core :refer [resource defresource]]
+            [ring.adapter.jetty :refer [run-jetty]]
+            [clojure.data.json :as json]
+            [compojure.core :refer [defroutes ANY GET]]
+            [mklappstuhl.stock-utils.metrics :as metrics]))
 
-(defn -main []
-  (do
-    (pers/migrate-all pers/pg)
-    (populate/populate-stocks
-     "./resources/short.tsv"
-     \tab
-     [:name :full_name]
-     [:name :full_name])
-    (populate/populate-days)))
+(defroutes app
+  (GET ["/stock/:stock" :stock #".*"] [stock]
+       (resource :available-media-types ["application/json"]
+                 :handle-ok (fn [ctx]
+                              (do
+                                (println stock)
+                                (json/write-str (metrics/get-stock-data (keyword stock))))))))
 
-
+(defn -main [& args]
+  (run-jetty #'app {:port 3000}))

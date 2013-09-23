@@ -54,3 +54,6 @@
   "populate the days table, returns a list of the symbols where yahoo returned 404"
   (let [stocks (k/select pers/stocks)]
     (filter keyword? (map (comp sync-trading-data :name) stocks))))
+
+;;(populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])
+;;(populate-days)
