@@ -1,27 +1,27 @@
 (ns mklappstuhl.stock-utils.populate
-  (:require [mklappstuhl.stock-utils.db :as db]
+  (:require [mklappstuhl.stock-utils.persistence :as pers]
             [mklappstuhl.stock-utils.util :as util]
             [clojure.java.io :as io]
             [clojure.data.csv :as csv]
-            [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [korma.core :as k]
+            [korma.db :as kdb]
             [in.freegeek.yfinance :as yfinance]
             [clj-time.core :as time]))
 
 ;; csv can be downloaded at http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NASDAQ&render=download
 (defn populate-stocks [csv-name seperator header header-stripped]
- (with-open [csv-file (io/reader csv-name)]
-  (let [parsed-csv (map (comp #(select-keys % header-stripped)
-                              (partial zipmap header))
-                        (doall (csv/read-csv csv-file :separator seperator)))]
-     (apply (partial jdbc/insert! db/pg :stocks)
-            (rest parsed-csv)))))
+  (with-open [csv-file (io/reader csv-name)]
+    (let [parsed-csv (map (comp #(select-keys % header-stripped)
+                                (partial zipmap header))
+                          (doall (csv/read-csv csv-file :separator seperator)))]
+       (k/insert pers/stocks
+                 (k/values parsed-csv)))))
 
 (defn last-synced-day [stock]
   (or (:trading_date
        (first
-        (k/select db/days
+        (k/select pers/days
                   (k/where {:stock_name (name stock)})
                   (k/order :trading_date :desc)
                   (k/fields :trading_date)
@@ -34,7 +34,7 @@
         last-sync (util/unparse-date (last-synced-day stock))
         data (stock (yfinance/fetch-historical-data last-sync today [stock]))]
     (if (not= data 404)
-      (db/persist-day stock
+      (pers/persist-day stock
                       (map #(update-in % [:trading_date] util/parse-date)
                            data))
       stock)))
@@ -52,5 +52,5 @@
 
 (defn populate-days []
   "populate the days table, returns a list of the symbols where yahoo returned 404"
-  (let [stocks (k/select db/stocks)]
+  (let [stocks (k/select pers/stocks)]
     (filter keyword? (map (comp sync-trading-data :name) stocks))))

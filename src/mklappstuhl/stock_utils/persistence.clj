@@ -1,26 +1,23 @@
-(ns mklappstuhl.stock-utils.db
+(ns mklappstuhl.stock-utils.persistence
   (:require [korma.db :as kdb]
             [korma.core :as k]
             [clojure.pprint :as pp]
             [clojure.java.jdbc :as sql]))
-
 
 (def pg (kdb/postgres {:db "goldman"
                        :user "goldman"
                        :password ""
                        :host "localhost"
                        :port "5432"}))
+(kdb/defdb kpg pg)
 
-(k/defentity stocks
-  (k/database pg))
+(k/defentity stocks)
 
 (k/defentity days
-  (k/database pg)
   (k/has-one stocks))
 
 (k/defentity
  stocks
- (k/database pg)
  (k/has-many days)
  (k/transform
   (fn [m]
@@ -35,12 +32,13 @@
     (k/insert days
       (k/values data))))
 
-(defn drop-schema []
-  (sql/with-connection pg
+(defn drop-schema [db-conn]
+  (sql/with-connection db-conn
     (sql/transaction
-       (try (sql/drop-table :migrations))
-       (try (sql/drop-table :stocks))
-       (try (sql/drop-table :days)))))
+       (do
+         (try (sql/drop-table :days))
+         (try (sql/drop-table :stocks))
+         (try (sql/drop-table :migrations))))))
 
 (defn create-stocks []
     (sql/create-table
@@ -85,8 +83,8 @@
                         (java.sql.Timestamp. (System/currentTimeMillis))])
     (catch Exception e (.getNextException e))))
 
-(defn migrate [& migrations]
-  (sql/with-connection pg
+(defn migrate [db-conn & migrations]
+  (sql/with-connection db-conn
     (try (sql/create-table "migrations"
                           [:name :varchar "NOT NULL"]
                           [:created_at :timestamp "NOT NULL"  "DEFAULT CURRENT_TIMESTAMP"])
@@ -98,7 +96,8 @@
                 :when (not (has-run? (str (:name (meta m)))))]
           (run-and-record m))))))
 
-(defn migrate-all []
+(defn migrate-all [db-conn]
   "run all migrations"
-  (migrate #'create-stocks
+  (migrate db-conn
+           #'create-stocks
            #'create-days))

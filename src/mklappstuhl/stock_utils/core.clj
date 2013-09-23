@@ -3,13 +3,16 @@
             [mklappstuhl.stock-utils.simulate :as simulate]
             [mklappstuhl.stock-utils.util :as util]
             [mklappstuhl.stock-utils.populate :as populate]
-            [mklappstuhl.stock-utils.db :as db]))
+            [mklappstuhl.stock-utils.persistence :as pers]))
 
 (defn -main []
-  (do (db/migrate-all)
-      (populate/populate-stocks
-         "./resources/short.tsv"
-         \tab
-         [:name :full_name]
-         [:name :full_name])
-      (populate/populate-days)))
+  (do
+    (pers/migrate-all pers/pg)
+    (populate/populate-stocks
+     "./resources/short.tsv"
+     \tab
+     [:name :full_name]
+     [:name :full_name])
+    (populate/populate-days)))
+
+
