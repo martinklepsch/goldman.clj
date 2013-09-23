@@ -2,7 +2,7 @@
   (:require [mklappstuhl.stock-utils.db :as db]
             [mklappstuhl.stock-utils.util :as util]
             [clojure.java.io :as io]
-            [clojure-csv.core :as csv]
+            [clojure.data.csv :as csv]
             [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [korma.core :as k]
@@ -14,9 +14,9 @@
  (with-open [csv-file (io/reader csv-name)]
   (let [parsed-csv (map (comp #(select-keys % header-stripped)
                               (partial zipmap header))
-                        (doall (csv/parse-csv csv-file :delimiter seperator)))]
-    (apply (partial jdbc/insert! db/pg :stocks)
-           (rest parsed-csv)))))
+                        (doall (csv/read-csv csv-file :separator seperator)))]
+     (apply (partial jdbc/insert! db/pg :stocks)
+            (rest parsed-csv)))))
 
 (defn last-synced-day [stock]
   (or (:trading_date
