@@ -6,10 +6,16 @@
             [mklappstuhl.stock-utils.metrics :as metrics]))
 
 (defroutes app
-  (GET ["/stock/:stock" :stock #".*"] [stock]
+  (GET ["/stocks/:stock" ] []
+       (resource :available-media-types ["application/json"]
+                 :handle-ok (fn [ctx]
+                              (json/write-str (metrics/get-stocks)))))
+  (GET ["/days/:stock" :stock #".*"] [stock]
        (resource :available-media-types ["application/json"]
                  :handle-ok (fn [ctx]
                               (json/write-str (metrics/get-stock-data (keyword stock)))))))
 
 (defn -main [& args]
   (run-jetty #'app {:port 3000}))
+
+(-main)

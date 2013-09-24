@@ -33,5 +33,7 @@
 (defn get-stock-data [stock]
   (k/select pers/days
             (k/where {:stock_name (name stock)})))
+(defn get-stocks []
+  (k/select pers/stocks))
 
 ; (get-stock-data :AABB)
