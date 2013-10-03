@@ -1,5 +1,6 @@
 (ns mklappstuhl.stock-utils.setup
   (:require [mklappstuhl.stock-utils.persistence :as pers]
+            [mklappstuhl.stock-utils.util :as util]
             [mklappstuhl.stock-utils.populate :as populate]))
 
 
@@ -8,11 +9,9 @@
   (do
     (pers/drop-schema pers/pg)
     (pers/migrate-all pers/pg)
-    (populate/populate-stocks
-     "./resources/dev.tsv"
-     \tab
-     [:name :full_name]
-     [:name :full_name])
+    (map #(populate/populate-stocks % \tab [:name :full_name] [:name :full_name])
+          (util/full-directory-list "./resources/symbol-lists/"))
     (populate/populate-days)))
 
-;(setup-dev!)
+
+; (setup-dev!)

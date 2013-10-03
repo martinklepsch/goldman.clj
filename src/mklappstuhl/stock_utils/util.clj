@@ -11,3 +11,9 @@
 
 (defn unparse-date [date]
   (format/unparse yfinance-date date))
+
+(defn full-directory-list
+  "Given a directory, return the full pathnames for the files it contains"
+  [dir]
+  (sort (map #(.getCanonicalPath %) (.listFiles (clojure.java.io/file dir))))
+  )
