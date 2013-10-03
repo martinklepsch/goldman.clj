@@ -40,8 +40,9 @@
         last-sync (str (last-synced-day stock))
         data (stock (yfinance/fetch-historical-data last-sync today [stock]))]
     (if (not= data 404)
-      ((log/info (name stock) " - fetching trading data from" last-sync "to" today)
-      (pers/persist-days stock
+      (do
+       (log/info (name stock) " - fetching trading data from" last-sync "to" today)
+       (pers/persist-days stock
                       (map #(update-in % [:trading_date] util/parse-date)
                            data)))
       stock)))
@@ -60,7 +61,11 @@
 (defn populate-days []
   "populate the days table, returns a list of the symbols where yahoo returned 404"
   (let [stocks (k/select pers/stocks)]
-    (filter keyword? (map (comp sync-trading-data :name) stocks))))
+    (filter keyword?
+            (map (comp sync-trading-data :name)
+                 stocks))))
+
+(populate-days)
 
 ;;(populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])
 ;;(populate-days)
