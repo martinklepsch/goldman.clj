@@ -1,6 +1,7 @@
 (ns mklappstuhl.stock-utils.persistence
   (:require [korma.db :as kdb]
             [korma.core :as k]
+            [clojure.tools.logging :as log]
             [clojure.pprint :as pp]
             [clojure.java.jdbc :as sql]))
 
@@ -31,7 +32,7 @@
   (k/select stocks
     (k/limit 1)))
 
-(defn persist-day [stock-name day-data]
+(defn persist-days [stock-name day-data]
   (let [data (map #(merge {:stock_name (name stock-name)} %) day-data)]
     (k/insert days
       (k/values data))))

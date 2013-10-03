@@ -4,6 +4,7 @@
             [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [clojure.string :as string]
+            [clojure.tools.logging :as log]
             [korma.core :as k]
             [korma.db :as kdb]
             [in.freegeek.yfinance :as yfinance]
@@ -15,8 +16,13 @@
     (let [parsed-csv (map (comp #(select-keys % header-stripped)
                                 (partial zipmap header))
                           (doall (csv/read-csv csv-file :separator seperator)))]
-       (k/insert pers/stocks
-                 (k/values parsed-csv)))))
+       (map
+         #(if
+           (empty? (k/select pers/stocks (k/where { :name (:name %) })))
+           (k/insert pers/stocks (k/values %))
+           (log/info (:name %) "already in database"))
+         parsed-csv))))
+
 
 (defn last-synced-day [stock]
   (or (:trading_date
@@ -26,17 +32,18 @@
                   (k/order :trading_date :desc)
                   (k/fields :trading_date)
                   (k/limit 1))))
-      (time/date-time 2000 01 01)))
+      "2000-01-01"))
 
 (defn sync-trading-data [stock]
   "load Yahoo! Finance data for given stock and save it to database"
   (let [today (util/unparse-date (time/now))
-        last-sync (util/unparse-date (last-synced-day stock))
+        last-sync (str (last-synced-day stock))
         data (stock (yfinance/fetch-historical-data last-sync today [stock]))]
     (if (not= data 404)
-      (pers/persist-day stock
+      ((log/info (name stock) " - fetching trading data from" last-sync "to" today)
+      (pers/persist-days stock
                       (map #(update-in % [:trading_date] util/parse-date)
-                           data))
+                           data)))
       stock)))
 
 (def marijuana
