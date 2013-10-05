@@ -41,7 +41,7 @@
         ticker (keyword (:name stock))
         data (ticker (yfinance/fetch-historical-data last-sync today [ticker]))]
     (cond
-      (empty? data)
+      (and (not= data 404) (empty? data))
       (log/info (name ticker) "- NO NEW DATA")
 
       (not= data 404)
@@ -71,7 +71,9 @@
   (let [stocks (k/select pers/stocks)]
     (filter keyword? (map sync-trading-data stocks))))
 
-(populate-days)
+;; (populate-days)
 
 ;;(populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])
 ;;(populate-days)
+
+(sync-trading-data (first (k/select pers/stocks (k/where {:name "AALTF"}))))
