@@ -23,17 +23,14 @@
 
 (k/defentity
  stocks
- (k/has-many days)
- (k/transform
-  (fn [m]
-    (update-in m [:name] keyword))))
+ (k/has-many days))
 
 (defn stock-sample  []
   (k/select stocks
     (k/limit 1)))
 
-(defn persist-days [stock-name day-data]
-  (let [data (map #(merge {:stock_name (name stock-name)} %) day-data)]
+(defn persist-days [stock day-data]
+  (let [data (map #(merge {:stock_name (:name stock)} %) day-data)]
     (k/insert days
       (k/values data))))
 
