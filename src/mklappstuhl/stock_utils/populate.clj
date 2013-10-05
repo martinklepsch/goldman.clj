@@ -28,24 +28,32 @@
   (or (:trading_date
        (first
         (k/select pers/days
-                  (k/where {:stock_name (name stock)})
+                  (k/where {:stock_name (:name stock)})
                   (k/order :trading_date :desc)
                   (k/fields :trading_date)
                   (k/limit 1))))
-      "2000-01-01"))
+      "2010-01-01"))
 
 (defn sync-trading-data [stock]
   "load Yahoo! Finance data for given stock and save it to database"
   (let [today (util/unparse-date (time/now))
         last-sync (str (last-synced-day stock))
-        data (stock (yfinance/fetch-historical-data last-sync today [stock]))]
-    (if (not= data 404)
+        ticker (keyword (:name stock))
+        data (ticker (yfinance/fetch-historical-data last-sync today [ticker]))]
+    (cond
+      (empty? data)
+      (log/info (name ticker) "- NO NEW DATA")
+
+      (not= data 404)
       (do
-       (log/info (name stock) " - fetching trading data from" last-sync "to" today)
-       (pers/persist-days stock
-                      (map #(update-in % [:trading_date] util/parse-date)
-                           data)))
-      stock)))
+        (log/info (name ticker) "- fetching trading data from" last-sync "to" today)
+        (pers/persist-days stock
+                           (map #(update-in % [:trading_date] util/parse-date) data)))
+
+      :else
+      (do
+        (log/warn (name ticker) "- NO RESPONSE")
+        (:name stock)))))
 
 (def marijuana
   [:CANV :CBIS :EDXC :ERBB :FSPM :GRNH :GWPL
@@ -61,9 +69,7 @@
 (defn populate-days []
   "populate the days table, returns a list of the symbols where yahoo returned 404"
   (let [stocks (k/select pers/stocks)]
-    (filter keyword?
-            (map (comp sync-trading-data :name)
-                 stocks))))
+    (filter keyword? (map sync-trading-data stocks))))
 
 (populate-days)
 
