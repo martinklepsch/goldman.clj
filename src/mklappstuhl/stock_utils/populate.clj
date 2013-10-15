@@ -4,7 +4,7 @@
             [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [clojure.string :as string]
-            [clojure.tools.logging :as log]
+            [taoensso.timbre :as log]
             [korma.core :as k]
             [korma.db :as kdb]
             [in.freegeek.yfinance :as yfinance]

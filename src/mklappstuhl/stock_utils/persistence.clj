@@ -1,7 +1,7 @@
 (ns mklappstuhl.stock-utils.persistence
   (:require [korma.db :as kdb]
             [korma.core :as k]
-            [clojure.tools.logging :as log]
+            [taoensso.timbre :as log]
             [clojure.pprint :as pp]
             [clojure.java.jdbc :as sql]))
 
