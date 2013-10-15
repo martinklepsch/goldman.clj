@@ -35,7 +35,7 @@
       (k/insert days
         (k/values data))
     (catch Exception e
-      (log/error (:name stock) "- there was an error persisting the data")))))
+      (log/error (:name stock) "- Exception while persisting the data")))))
 
 (defn drop-schema [db-conn]
   (sql/with-connection db-conn

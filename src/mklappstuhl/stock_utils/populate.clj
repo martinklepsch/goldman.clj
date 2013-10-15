@@ -32,7 +32,7 @@
                   (k/order :trading_date :desc)
                   (k/fields :trading_date)
                   (k/limit 1))))
-      "2010-01-01"))
+      "2000-01-01"))
 
 (defn sync-trading-data [stock]
   "load Yahoo! Finance data for given stock and save it to database"
@@ -41,19 +41,23 @@
         ticker (keyword (:name stock))
         data (ticker (yfinance/fetch-historical-data last-sync today [ticker]))]
     (cond
-      (and (not= data 404) (empty? data))
-      (log/info (name ticker) "- NO NEW DATA")
-
-      (not= data 404)
+      (= data 404)
       (do
-        (log/info (name ticker) "- fetching trading data from" last-sync "to" today)
+        (log/warn (name ticker) "- 404")
+        (:name stock))
+
+
+      (seq data)
+      (do
+        (log/info (name ticker) "- Successfully downloaded trading data from" last-sync "to" today)
         (pers/persist-days stock
                            (map #(update-in % [:trading_date] util/parse-date) data)))
 
+      (empty? data)
+      (log/info (name ticker) "- Empty response")
+
       :else
-      (do
-        (log/warn (name ticker) "- NO RESPONSE")
-        (:name stock)))))
+      (log/error (name ticker) "- Wierd stuff happening"))))
 
 (def marijuana
   [:CANV :CBIS :EDXC :ERBB :FSPM :GRNH :GWPL
@@ -71,9 +75,8 @@
   (let [stocks (k/select pers/stocks)]
     (filter keyword? (map sync-trading-data stocks))))
 
-;; (populate-days)
-
-;;(populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])
-;;(populate-days)
-
-(sync-trading-data (first (k/select pers/stocks (k/where {:name "AALTF"}))))
+; (populate-days)
+; (sync-trading-data (first (k/select pers/stocks (k/where {:name "ACGX"}))))
+; (keyword "tesT")
+; (name (keyword (:name (first (k/select pers/stocks (k/limit 1))))))
+; (populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])
