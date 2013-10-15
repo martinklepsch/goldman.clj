@@ -31,8 +31,11 @@
 
 (defn persist-days [stock day-data]
   (let [data (map #(merge {:stock_name (:name stock)} %) day-data)]
-    (k/insert days
-      (k/values data))))
+    (try
+      (k/insert days
+        (k/values data))
+    (catch Exception e
+      (log/error (:name stock) "- there was an error persisting the data")))))
 
 (defn drop-schema [db-conn]
   (sql/with-connection db-conn
