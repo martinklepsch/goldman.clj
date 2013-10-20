@@ -41,16 +41,16 @@
         ticker (map #(keyword (:name %)) stocks)
         ; there is probably a limit of the stocks you can request at once
         data (yfinance/fetch-historical-data last-sync today ticker)]
-    (map handle-yfincance-response (map #(vector % (str (:name %))) data) stocks)))
+    (map handle-yfincance-response (mapcat #(vector % (str (:name %))) data))))
 
 ; (def up-to-date? [stock]
 ;   )
-(sync-trading-data  (k/select pers/stocks (k/limit 2)))
+
 ; (map #(keyword (:name %)) (k/select pers/stocks (k/limit 3)))
 ; (yfinance/fetch-historical-data "2013-01-01" "2013-01-10" (map #(keyword (:name %)) (k/select pers/stocks (k/limit 3)))))
 
 
-(defn handle-yfincance-response [stock data]
+(defn handle-yfincance-response [[stock data]]
   "takes a response from yfinance and does things to it
    this should probably go into a yfinance adapter"
   (let [ticker (str (:name stock))]
@@ -95,3 +95,5 @@
 ; (keyword "tesT")
 ; (name (keyword (:name (first (k/select pers/stocks (k/limit 1))))))
 ; (populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])
+
+(sync-trading-data  (k/select pers/stocks (k/limit 2)))
