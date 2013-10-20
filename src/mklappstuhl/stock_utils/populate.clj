@@ -34,6 +34,15 @@
                   (k/limit 1))))
       "2000-01-01"))
 
+(defn sync-trading-data [stocks]
+  "load Yahoo! Finance data for given stock and save it to database"
+  (let [today (util/unparse-date (time/now))
+        last-sync (str (last-synced-day (first stocks)))
+        ticker (map #(keyword (:name %)) stocks)
+        ; there is probably a limit of the stocks you can request at once
+        data (yfinance/fetch-historical-data last-sync today ticker)]
+    (map handle-yfincance-response (map #(vector % (str (:name %))) data) stocks)))
+
 ; (def up-to-date? [stock]
 ;   )
 (sync-trading-data  (k/select pers/stocks (k/limit 2)))
@@ -63,16 +72,6 @@
 
       :else
       (log/error (name ticker) "- Wierd stuff happening"))))
-
-
-(defn sync-trading-data [stocks]
-  "load Yahoo! Finance data for given stock and save it to database"
-  (let [today (util/unparse-date (time/now))
-        last-sync (str (last-synced-day (first stocks)))
-        ticker (map #(keyword (:name %)) stocks)
-        ; there is probably a limit of the stocks you can request at once
-        data (yfinance/fetch-historical-data last-sync today ticker)]
-    (map handle-yfincance-response (map #(vector % (str (:name %))) data) stocks)))
 
 
 (def marijuana
