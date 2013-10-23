@@ -15,13 +15,14 @@
                             :port "5432"}))
 (kdb/defdb test-kdb test-pg)
 
-(deftest populate-stocks
-    (do (pers/migrate-all test-pg)
-        (populate/populate-stocks
-         "./resources/short.tsv"
-         \tab
-         [:name :full_name]
-         [:name :full_name])
-      (is (= [{:industry nil, :sector nil, :full_name "Asia Broadband Inc", :name :AABB}]
-             (k/select pers/stocks)))
+;; create the database goldman_test with the user goldman to run these tests
+(deftest populate-stocks-single
+    (do
+      (pers/migrate-all test-pg)
+      (is (= [{:industry nil, :sector nil, :full_name "Asia Broadband Inc", :name "AABB"}]
+             (populate/populate-stocks
+              "./resources/short.tsv"
+              \tab
+              [:name :full_name]
+              [:name :full_name])))
       (pers/drop-schema test-pg)))
