@@ -7,8 +7,8 @@
 (defn daily-returns [trade]
   "takes a trade and returns hash map of relative
   daily returns like {date return}"
-  (let [adj-closes (map :adj-close (populate/load-trading-data trade))
-        days       (map :date      (populate/load-trading-data trade))]
+  (let [adj-closes (map :adj-close (populate/sync-trading-data trade))
+        days       (map :date      (populate/sync-trading-data trade))]
   (zipmap
     days
     (map dec (map / adj-closes (rest adj-closes))))))
@@ -20,8 +20,8 @@
 
 (defn absolute-returns [trade]
   "takes a trade and returns the absolute returns in percentages"
-  (let [first-day (:adj-close (first (populate/load-trading-data trade)))
-        last-day  (:adj-close (last (populate/load-trading-data trade)))]
+  (let [first-day (:adj-close (first (populate/sync-trading-data trade)))
+        last-day  (:adj-close (last (populate/sync-trading-data trade)))]
   (- (/ last-day first-day) 1)))
 
 (defn sharpe-ratio [trade]
