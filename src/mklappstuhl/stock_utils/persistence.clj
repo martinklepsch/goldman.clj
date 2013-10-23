@@ -32,8 +32,10 @@
 (defn persist-days [stock day-data]
   (let [data (map #(merge {:stock_name (:name stock)} %) day-data)]
     (try
-      (k/insert days
-        (k/values data))
+      (do
+        (k/insert days
+          (k/values data))
+        (log/info (str (:name stock)) "- saved" (count data) "days of trading data"))
     (catch Exception e
       (log/error (:name stock) "-" e)))))
 
