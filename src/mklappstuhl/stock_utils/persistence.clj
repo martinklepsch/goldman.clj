@@ -5,6 +5,7 @@
             [clojure.pprint :as pp]
             [clojure.java.jdbc :as sql]))
 
+
 (def pg (kdb/postgres {:db "goldman"
                        :user "goldman"
                        :password ""
@@ -108,5 +109,3 @@
   (migrate db-conn
            #'create-stocks
            #'create-days))
-
-;;(migrate-all pg)

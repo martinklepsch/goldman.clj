@@ -33,44 +33,44 @@
                   (k/limit 1))))
       "2000-01-01"))
 
-(defn handle-yfincance-response [data]
+(defn handle-yfincance-response [[stock-name stock-data]]
   "takes a response from yfinance and does things to it
-   this should probably go into a yfinance adapter"
-  (let [stock (first (k/select pers/stocks (k/where {:name (key data)})))
-        days (map #(update-in % [:trading_date] util/parse-date) (first (rest data)))
-        ticker (str (:name stock))]
+   this should probably go into a yfinance adapter
+   yfinance-data looks like: {'IBM' [{:trading_date, ...}, ...], 'non-existent' 404"
+  (let [stock (first (k/select pers/stocks (k/where {:name stock-name})))]
     (cond
-      (= days 404)
+
+      (= stock-data 404)
       (do
-        (log/warn (name ticker) "- 404")
+        (log/warn stock-name "- 404")
         (:name stock))
 
-      (seq days)
-      (do
-        (log/info (name ticker) "- downloaded" (count days) "days of trading data")
-        (pers/persist-days stock days))
+      (empty? stock-data)
+      (log/info stock-name "- Empty response")
 
-      (empty? days)
-      (log/info (name ticker) "- Empty response")
+      (seq? stock-data)
+      (do
+        (log/info stock-name "- downloaded" (count stock-data) "days of trading data")
+        (pers/persist-days stock (map #(update-in % [:trading_date] util/parse-date) stock-data)))
 
       :else
-      (log/error (name ticker) "- Wierd stuff happening"))))
+      (log/error stock-name "- Wierd stuff happening"))))
 
 
 
 (defn sync-trading-data [stocks]
-  "load Yahoo! Finance data for given stock and save it to database"
+  "load Yahoo! Finance data for given list of stocks and save it to database"
   (let [today (util/unparse-date (time/now))
         last-sync (str (last-synced-day (first stocks)))
-        ticker (map #(:name %) stocks)
         ; there is probably a limit of the stocks you can request at once
-        data (yfinance/fetch-historical-data last-sync today ticker)]
-    (map handle-yfincance-response data)))
+        yfinance-response (yfinance/fetch-historical-data last-sync today (map :name stocks))]
+    (map handle-yfincance-response yfinance-response)))
 
 (defn populate-days []
-  "populate the days table, returns a list of the symbols where yahoo returned 404"
+  "runs sync-trading-data for all stocks in the db"
   (let [stocks (k/select pers/stocks)]
-    (filter keyword? (map sync-trading-data stocks))))
+    (sync-trading-data stocks)))
+
 
 ; (populate-days)
 ; (sync-trading-data (first (k/select pers/stocks (k/where {:name "ACGX"}))))
