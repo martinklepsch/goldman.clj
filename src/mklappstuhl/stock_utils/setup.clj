@@ -10,8 +10,5 @@
     (pers/drop-schema pers/pg)
     (pers/migrate-all pers/pg)
     (map #(populate/populate-stocks % \tab [:name :full_name] [:name :full_name])
-          (util/full-directory-list "./resources/symbol-lists/"))
+          (util/full-directory-list "./resources/dev-symbols"))
     (populate/populate-days)))
-
-
-; (setup-dev!)
