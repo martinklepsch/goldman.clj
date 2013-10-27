@@ -7,20 +7,22 @@
             [mklappstuhl.stock-utils.metrics :as metrics]))
 
 (defroutes app
-  (GET ["/stocks/:stock" ] []
+  (GET ["/stocks" ] []
        (resource :available-media-types ["application/json"]
                  :handle-ok (fn [ctx]
                               (json/write-str (metrics/get-stocks)))))
   (GET ["/days/:stock" :stock #".*"] [stock]
        (resource :available-media-types ["application/json"]
                  :handle-ok (fn [ctx]
-                              (json/write-str (metrics/get-stock-data (keyword stock)))))))
+                              (json/write-str
+                               (metrics/stock-data->nvd3
+                                (metrics/get-stock-data (keyword stock))))))))
 
 (defn -main [& args]
   (timbre/set-level! :debug)
   (timbre/set-config! [:appenders :spit :enabled?] true)
   (timbre/set-config! [:shared-appender-config :spit-filename] "logs/all.log")
   (timbre/info "Goldman is coming to dig"))
-  ; (run-jetty #'app {:port 5000}))
+  (run-jetty #'app {:port 3000}))
 
 (-main)
