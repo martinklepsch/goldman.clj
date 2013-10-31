@@ -4,7 +4,8 @@
             [clojure.data.json :as json]
             [taoensso.timbre :as timbre]
             [compojure.core :refer [defroutes ANY GET]]
-            [mklappstuhl.stock-utils.metrics :as metrics]))
+            [mklappstuhl.stock-utils.metrics :as metrics]
+            [mklappstuhl.stock-utils.persistence :as pers]))
 
 (defroutes app
   (GET ["/stocks" ] []
@@ -22,7 +23,8 @@
   (timbre/set-level! :debug)
   (timbre/set-config! [:appenders :spit :enabled?] true)
   (timbre/set-config! [:shared-appender-config :spit-filename] "logs/all.log")
+  (pers/migrate-all pers/pg)
   (timbre/info "Goldman is coming to dig"))
-  (run-jetty #'app {:port 3000}))
+  ; (run-jetty #'app {:port 3000}))
 
 (-main)

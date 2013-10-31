@@ -50,7 +50,6 @@
 
       (seq? stock-data)
       (do
-        (log/info stock-name "- downloaded" (count stock-data) "days of trading data")
         (pers/persist-days stock (map #(update-in % [:trading_date] util/parse-date) stock-data)))
 
       :else
@@ -71,9 +70,11 @@
   (let [stocks (k/select pers/stocks)]
     (sync-trading-data stocks)))
 
+(defn sync-all []
+  (map sync-trading-data (partition 10 (pers/out-of-sync-stocks))))
 
-; (populate-days)
-; (sync-trading-data (first (k/select pers/stocks (k/where {:name "ACGX"}))))
+; (sync-all)
+; (sync-trading-data (k/select pers/stocks (k/where {:name "LQMT"})))
 ; (keyword "tesT")
 ; (name (keyword (:name (first (k/select pers/stocks (k/limit 1))))))
 ; (populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])

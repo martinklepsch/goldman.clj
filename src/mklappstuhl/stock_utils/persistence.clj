@@ -1,6 +1,8 @@
 (ns mklappstuhl.stock-utils.persistence
   (:require [korma.db :as kdb]
             [korma.core :as k]
+            [clj-time.core :as t]
+            [clj-time.coerce :as coerce]
             [taoensso.timbre :as log]
             [clojure.pprint :as pp]
             [clojure.java.jdbc :as sql]))
@@ -15,20 +17,22 @@
 
 (k/defentity stocks)
 
-(k/defentity
- days
- (k/has-one stocks)
- (k/transform
-  (fn [m]
-    (update-in m [:trading_date] str))))
+(k/defentity days
+  (k/has-one stocks)
+  (k/transform
+    (fn [m]
+      (update-in m [:trading_date] str))))
 
-(k/defentity
- stocks
- (k/has-many days))
+(k/defentity stocks
+  (k/has-many days))
 
 (defn stock-sample  []
   (k/select stocks
     (k/limit 1)))
+
+(defn out-of-sync-stocks []
+  (k/select stocks (k/where (or {:last_sync [<= (k/sqlfn now)]}
+                                {:last_sync nil}))))
 
 (defn persist-days [stock day-data]
   (let [data (map #(merge {:stock_name (:name stock)} %) day-data)]
@@ -36,6 +40,9 @@
       (do
         (k/insert days
           (k/values data))
+        (k/update stocks
+          (k/set-fields {:last_sync (coerce/to-sql-time (t/now))})
+          (k/where {:name (:name stock)}))
         (log/info (str (:name stock)) "- saved" (count data) "days of trading data"))
     (catch Exception e
       (log/error (:name stock) "-" e)))))
@@ -73,6 +80,9 @@
       [:ask "NUMERIC(16, 4)"] ;a
       [:bid "NUMERIC(16, 4)"])) ;b
 
+(defn add-last-sync-timestamp []
+    (sql/do-commands "ALTER TABLE stocks ADD COLUMN last_sync TIMESTAMPTZ"))
+
 ; this structure can be used to alter the current db schema
 ; (defn add-whatever []
 ;     (sql/do-commands "ALTER TABLE symbols ADD COLUMN whatever VARCHAR"))
@@ -108,4 +118,5 @@
   "run all migrations"
   (migrate db-conn
            #'create-stocks
-           #'create-days))
+           #'create-days
+           #'add-last-sync-timestamp))
