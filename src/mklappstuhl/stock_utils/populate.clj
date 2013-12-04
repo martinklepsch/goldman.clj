@@ -56,7 +56,6 @@
       (log/error stock-name "- Wierd stuff happening"))))
 
 
-
 (defn sync-trading-data [stocks]
   "load Yahoo! Finance data for given list of stocks and save it to database"
   (let [today (util/unparse-date (time/now))
@@ -72,9 +71,3 @@
 
 (defn sync-all []
   (map sync-trading-data (partition 10 (pers/out-of-sync-stocks))))
-
-; (sync-all)
-; (sync-trading-data (k/select pers/stocks (k/where {:name "LQMT"})))
-; (keyword "tesT")
-; (name (keyword (:name (first (k/select pers/stocks (k/limit 1))))))
-; (populate-stocks "./resources/short.tsv" \tab [:name :full_name] [:name :full_name])
