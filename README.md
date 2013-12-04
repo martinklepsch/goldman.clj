@@ -14,7 +14,7 @@ It's meant to be for curious people eager to explore the stock market in
 it's entirety rather than the limited scope a human mind can handle.
 
 Goldman is not meant to support *high frequency trading* but rather
-to find a few potential trades with high impact.
+to help you find a few potential trades with high impact.
 
 ### Symbols that did not work (Nasdaq):
      
